@@ -69,7 +69,7 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
     const logoSize = style.logoSize || 60;
     const logoOpacity = style.logoOpacity ?? 15;
     const logoPosition = style.logoPosition || 'header';
-    const watermarkSize = style.logoPosition === 'watermark' ? (style.logoSize || 150) : 150;
+    const watermarkSize = style.logoPosition === 'watermark' ? (style.logoSize || 250) : 250;
 
     return (
       <div

@@ -47,7 +47,7 @@ const SinglePrescription = ({
   const logoSize = (style.logoSize || 60) * 0.5;
   const logoOpacity = style.logoOpacity ?? 15;
   const logoPosition = style.logoPosition || 'header';
-  const watermarkSize = style.logoPosition === 'watermark' ? ((style.logoSize || 150) * 0.5) : 80;
+  const watermarkSize = style.logoPosition === 'watermark' ? ((style.logoSize || 250) * 0.5) : 125;
 
   return (
     <div
