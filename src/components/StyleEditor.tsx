@@ -2,20 +2,25 @@ import { PrescriptionStyle } from '@/types/prescription';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Palette, Type, Sparkles, Loader2 } from 'lucide-react';
+import { Palette, Type, Sparkles, Loader2, Brush, Square } from 'lucide-react';
 import { useState } from 'react';
+import { Slider } from '@/components/ui/slider';
 
 interface StyleEditorProps {
   style: PrescriptionStyle;
   onChange: (style: PrescriptionStyle) => void;
   onGenerateLogo: (prompt: string) => Promise<void>;
+  isGeneratingLogo: boolean;
 }
 
 const textures = [
-  { id: 'none', label: 'Sem textura' },
-  { id: 'linen', label: 'Linho' },
-  { id: 'paper', label: 'Papel' },
-  { id: 'grid', label: 'Grade' },
+  { id: 'none', label: 'Sem textura', icon: '○' },
+  { id: 'linen', label: 'Linho', icon: '▤' },
+  { id: 'paper', label: 'Papel', icon: '▧' },
+  { id: 'grid', label: 'Grade', icon: '▦' },
+  { id: 'dots', label: 'Pontos', icon: '⠿' },
+  { id: 'lines', label: 'Linhas', icon: '☰' },
+  { id: 'crosshatch', label: 'Hachurado', icon: '╳' },
 ] as const;
 
 const fonts = [
@@ -23,26 +28,36 @@ const fonts = [
   { id: 'classic', label: 'Clássica', preview: 'Libre Baskerville' },
   { id: 'body', label: 'Moderna', preview: 'Source Sans 3' },
   { id: 'display', label: 'Sofisticada', preview: 'Playfair Display' },
+  { id: 'modern', label: 'Clean', preview: 'Roboto' },
+  { id: 'elegant', label: 'Premium', preview: 'Montserrat' },
 ] as const;
 
 const borders = [
+  { id: 'none', label: 'Nenhuma' },
   { id: 'simple', label: 'Simples' },
   { id: 'double', label: 'Dupla' },
   { id: 'elegant', label: 'Elegante' },
+  { id: 'rounded', label: 'Arredondada' },
+  { id: 'thick', label: 'Grossa' },
 ] as const;
 
-export const StyleEditor = ({ style, onChange, onGenerateLogo }: StyleEditorProps) => {
+const presetColors = [
+  { bg: '#ffffff', primary: '#1e40af', label: 'Clássico Azul' },
+  { bg: '#faf9f7', primary: '#047857', label: 'Verde Médico' },
+  { bg: '#fffbeb', primary: '#b45309', label: 'Dourado Elegante' },
+  { bg: '#f8fafc', primary: '#334155', label: 'Cinza Profissional' },
+  { bg: '#fef2f2', primary: '#b91c1c', label: 'Vermelho Clássico' },
+  { bg: '#f0fdf4', primary: '#166534', label: 'Verde Natural' },
+  { bg: '#faf5ff', primary: '#7c3aed', label: 'Violeta Premium' },
+  { bg: '#fff7ed', primary: '#c2410c', label: 'Terracota' },
+];
+
+export const StyleEditor = ({ style, onChange, onGenerateLogo, isGeneratingLogo }: StyleEditorProps) => {
   const [logoPrompt, setLogoPrompt] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerateLogo = async () => {
     if (!logoPrompt.trim()) return;
-    setIsGenerating(true);
-    try {
-      await onGenerateLogo(logoPrompt);
-    } finally {
-      setIsGenerating(false);
-    }
+    await onGenerateLogo(logoPrompt);
   };
 
   return (
@@ -62,33 +77,43 @@ export const StyleEditor = ({ style, onChange, onGenerateLogo }: StyleEditorProp
             <Input
               value={logoPrompt}
               onChange={(e) => setLogoPrompt(e.target.value)}
-              placeholder="Ex: Símbolo médico minimalista com serpente azul"
+              placeholder="Ex: Caduceu minimalista com coração"
               className="input-medical mt-1"
             />
           </div>
           <Button 
             onClick={handleGenerateLogo}
-            disabled={isGenerating || !logoPrompt.trim()}
+            disabled={isGeneratingLogo || !logoPrompt.trim()}
             className="btn-medical w-full"
           >
-            {isGenerating ? (
+            {isGeneratingLogo ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Gerando...
+                Gerando com IA...
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4 mr-2" />
-                Gerar Logo
+                Gerar Logo com IA
               </>
             )}
           </Button>
 
           {style.logo && (
             <div className="mt-3 p-4 bg-card rounded-lg border border-border">
-              <p className="text-sm text-muted-foreground mb-2">Logo atual:</p>
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-sm text-muted-foreground">Logo atual:</p>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => onChange({ ...style, logo: undefined })}
+                  className="text-xs text-destructive hover:text-destructive"
+                >
+                  Remover
+                </Button>
+              </div>
               <div 
-                className="w-24 h-24 mx-auto"
+                className="w-20 h-20 mx-auto"
                 dangerouslySetInnerHTML={{ __html: style.logo }}
               />
             </div>
@@ -96,13 +121,34 @@ export const StyleEditor = ({ style, onChange, onGenerateLogo }: StyleEditorProp
         </div>
       </div>
 
-      {/* Colors */}
+      {/* Preset Colors */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Brush className="w-4 h-4 text-muted-foreground" />
+          <Label className="text-muted-foreground text-sm">Temas Prontos</Label>
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {presetColors.map((preset, idx) => (
+            <button
+              key={idx}
+              onClick={() => onChange({ ...style, backgroundColor: preset.bg, primaryColor: preset.primary })}
+              className="group relative p-2 rounded-lg border-2 transition-all duration-200 hover:border-primary/50"
+              style={{ borderColor: style.backgroundColor === preset.bg && style.primaryColor === preset.primary ? preset.primary : 'transparent', backgroundColor: preset.bg }}
+              title={preset.label}
+            >
+              <div className="w-full h-6 rounded" style={{ backgroundColor: preset.primary }} />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Custom Colors */}
       <div>
         <div className="flex items-center gap-2 mb-4">
           <div className="p-2 rounded-lg bg-primary/10">
             <Palette className="w-5 h-5 text-primary" />
           </div>
-          <h3 className="font-display text-lg font-semibold text-foreground">Cores</h3>
+          <h3 className="font-display text-lg font-semibold text-foreground">Cores Personalizadas</h3>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -113,12 +159,12 @@ export const StyleEditor = ({ style, onChange, onGenerateLogo }: StyleEditorProp
                 type="color"
                 value={style.backgroundColor}
                 onChange={(e) => onChange({ ...style, backgroundColor: e.target.value })}
-                className="w-12 h-10 p-1 cursor-pointer"
+                className="w-12 h-10 p-1 cursor-pointer rounded-lg"
               />
               <Input
                 value={style.backgroundColor}
                 onChange={(e) => onChange({ ...style, backgroundColor: e.target.value })}
-                className="input-medical flex-1"
+                className="input-medical flex-1 text-xs"
               />
             </div>
           </div>
@@ -130,33 +176,54 @@ export const StyleEditor = ({ style, onChange, onGenerateLogo }: StyleEditorProp
                 type="color"
                 value={style.primaryColor}
                 onChange={(e) => onChange({ ...style, primaryColor: e.target.value })}
-                className="w-12 h-10 p-1 cursor-pointer"
+                className="w-12 h-10 p-1 cursor-pointer rounded-lg"
               />
               <Input
                 value={style.primaryColor}
                 onChange={(e) => onChange({ ...style, primaryColor: e.target.value })}
-                className="input-medical flex-1"
+                className="input-medical flex-1 text-xs"
               />
             </div>
           </div>
         </div>
       </div>
 
+      {/* Logo Size */}
+      {style.logo && (
+        <div>
+          <Label className="text-muted-foreground text-sm mb-2 block">Tamanho do Logo</Label>
+          <Slider
+            value={[style.logoSize || 60]}
+            onValueChange={([value]) => onChange({ ...style, logoSize: value })}
+            min={30}
+            max={100}
+            step={5}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+            <span>Pequeno</span>
+            <span>{style.logoSize || 60}px</span>
+            <span>Grande</span>
+          </div>
+        </div>
+      )}
+
       {/* Texture */}
       <div>
-        <Label className="text-muted-foreground text-sm mb-2 block">Textura</Label>
-        <div className="grid grid-cols-2 gap-2">
+        <Label className="text-muted-foreground text-sm mb-2 block">Textura de Fundo</Label>
+        <div className="grid grid-cols-4 gap-2">
           {textures.map((tex) => (
             <button
               key={tex.id}
               onClick={() => onChange({ ...style, texture: tex.id })}
-              className={`p-3 rounded-lg border-2 transition-all duration-200 text-sm font-medium
+              className={`p-2 rounded-lg border-2 transition-all duration-200 text-center
                 ${style.texture === tex.id 
                   ? 'border-primary bg-primary/5 text-primary' 
                   : 'border-border hover:border-primary/50 text-muted-foreground'
                 }`}
             >
-              {tex.label}
+              <div className="text-lg mb-1">{tex.icon}</div>
+              <div className="text-xs">{tex.label}</div>
             </button>
           ))}
         </div>
@@ -190,7 +257,10 @@ export const StyleEditor = ({ style, onChange, onGenerateLogo }: StyleEditorProp
 
       {/* Border Style */}
       <div>
-        <Label className="text-muted-foreground text-sm mb-2 block">Estilo da borda</Label>
+        <div className="flex items-center gap-2 mb-3">
+          <Square className="w-4 h-4 text-muted-foreground" />
+          <Label className="text-muted-foreground text-sm">Estilo da Borda</Label>
+        </div>
         <div className="grid grid-cols-3 gap-2">
           {borders.map((border) => (
             <button
@@ -203,6 +273,26 @@ export const StyleEditor = ({ style, onChange, onGenerateLogo }: StyleEditorProp
                 }`}
             >
               {border.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Header Position */}
+      <div>
+        <Label className="text-muted-foreground text-sm mb-2 block">Posição do Cabeçalho</Label>
+        <div className="grid grid-cols-3 gap-2">
+          {(['left', 'center', 'right'] as const).map((pos) => (
+            <button
+              key={pos}
+              onClick={() => onChange({ ...style, headerPosition: pos })}
+              className={`p-3 rounded-lg border-2 transition-all duration-200 text-sm font-medium capitalize
+                ${style.headerPosition === pos 
+                  ? 'border-primary bg-primary/5 text-primary' 
+                  : 'border-border hover:border-primary/50 text-muted-foreground'
+                }`}
+            >
+              {pos === 'left' ? 'Esquerda' : pos === 'center' ? 'Centro' : 'Direita'}
             </button>
           ))}
         </div>
