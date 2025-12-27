@@ -221,16 +221,16 @@ export const StyleEditor = ({ style, onChange, onGenerateLogo, isGeneratingLogo 
           <div>
             <Label className="text-muted-foreground text-sm mb-2 block">Tamanho do Logo</Label>
             <Slider
-              value={[style.logoSize || 60]}
+              value={[style.logoSize || (style.logoPosition === 'watermark' ? 250 : 60)]}
               onValueChange={([value]) => onChange({ ...style, logoSize: value })}
-              min={style.logoPosition === 'watermark' ? 100 : 30}
-              max={style.logoPosition === 'watermark' ? 300 : 100}
+              min={style.logoPosition === 'watermark' ? 150 : 30}
+              max={style.logoPosition === 'watermark' ? 500 : 120}
               step={10}
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>Pequeno</span>
-              <span>{style.logoSize || 60}px</span>
+              <span>{style.logoSize || (style.logoPosition === 'watermark' ? 250 : 60)}px</span>
               <span>Grande</span>
             </div>
           </div>

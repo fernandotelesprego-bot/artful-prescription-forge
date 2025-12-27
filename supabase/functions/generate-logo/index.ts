@@ -22,19 +22,20 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const imagePrompt = `Create a large, high-resolution professional medical logo icon.
+    const imagePrompt = `Create a VERY LARGE, high-resolution professional medical logo icon that fills most of the canvas.
     
     CRITICAL REQUIREMENTS:
     - The logo must be: ${prompt}
-    - Use ONLY the color ${primaryColor} (monochromatic design)
-    - PURE WHITE BACKGROUND (#FFFFFF) - NOT transparent, NOT checkered, just solid white
-    - Large, detailed, high quality image (at least 512x512 pixels)
+    - Use ONLY the color ${primaryColor} (solid, dark color - monochromatic design)
+    - PURE WHITE BACKGROUND (#FFFFFF) - completely solid white, no patterns, no gradients
+    - The logo/icon should be LARGE and fill 80-90% of the image area
+    - Ultra high resolution, crisp and detailed
     - Clean, minimalist medical/healthcare design
     - Professional and elegant silhouette style
-    - Simple icon/symbol only, absolutely NO text
-    - The logo should work well as a watermark
-    - Vector-like clean edges
-    - Centered composition with good margins`;
+    - Simple icon/symbol only, absolutely NO text, NO letters
+    - Bold, thick lines for better visibility as watermark
+    - Vector-like clean edges with high contrast
+    - Centered composition with minimal margins`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
