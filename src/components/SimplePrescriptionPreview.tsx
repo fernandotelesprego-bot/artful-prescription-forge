@@ -76,10 +76,10 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
           backgroundColor: style.backgroundColor,
           width: '210mm',
           height: '297mm',
-          padding: '15mm',
           boxSizing: 'border-box',
           display: 'flex',
           flexDirection: 'column',
+          padding: '15mm',
           ...getBorderStyle(),
         }}
       >
