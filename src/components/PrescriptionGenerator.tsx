@@ -62,12 +62,24 @@ export const PrescriptionGenerator = () => {
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = () => {
-    // Create a print-specific stylesheet
+    // Create a print-specific stylesheet with @page rules
     const printStyle = document.createElement('style');
     printStyle.id = 'print-override';
     printStyle.textContent = prescriptionType === 'special' 
-      ? '@page { size: A4 landscape; margin: 0; }'
-      : '@page { size: A4 portrait; margin: 0; }';
+      ? `
+        @page { size: 297mm 210mm; margin: 0 !important; }
+        @media print { 
+          body { margin: 0 !important; padding: 0 !important; }
+          .print-container { display: block !important; }
+        }
+      `
+      : `
+        @page { size: 210mm 297mm; margin: 0 !important; }
+        @media print { 
+          body { margin: 0 !important; padding: 0 !important; }
+          .print-container { display: block !important; }
+        }
+      `;
     
     document.head.appendChild(printStyle);
     
@@ -277,8 +289,8 @@ export const PrescriptionGenerator = () => {
         </div>
       </main>
 
-      {/* Print-only content */}
-      <div className="hidden print:block">
+      {/* Print-only content - rendered outside main flow */}
+      <div className="print-container">
         {prescriptionType === 'simple' ? (
           <SimplePrescriptionPreview
             doctor={doctor}
