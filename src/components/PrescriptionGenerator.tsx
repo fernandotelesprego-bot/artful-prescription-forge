@@ -107,8 +107,8 @@ export const PrescriptionGenerator = () => {
         return;
       }
 
-      if (data?.svg) {
-        setStyle(prev => ({ ...prev, logo: data.svg }));
+      if (data?.imageUrl) {
+        setStyle(prev => ({ ...prev, logo: data.imageUrl }));
         toast.success('Logo gerado com sucesso!');
       } else if (data?.error) {
         toast.error(data.error);

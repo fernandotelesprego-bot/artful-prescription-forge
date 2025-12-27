@@ -89,10 +89,11 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
           style={{ borderBottom: `2px solid ${style.primaryColor}` }}
         >
           {style.logo && (
-            <div 
-              className="mb-3"
+            <img 
+              src={style.logo}
+              alt="Logo"
+              className="mb-3 object-contain"
               style={{ width: logoSize, height: logoSize }}
-              dangerouslySetInnerHTML={{ __html: style.logo }}
             />
           )}
           <div className={getHeaderAlign()}>

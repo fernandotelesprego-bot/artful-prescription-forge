@@ -76,10 +76,11 @@ const SinglePrescription = ({
         </div>
         <div className="flex items-start gap-2">
           {style.logo && (
-            <div 
-              className="flex-shrink-0"
+            <img
+              src={style.logo}
+              alt="Logo"
+              className="flex-shrink-0 object-contain"
               style={{ width: logoSize, height: logoSize }}
-              dangerouslySetInnerHTML={{ __html: style.logo }}
             />
           )}
           <div className="flex-1 leading-tight" style={{ fontSize: '7pt' }}>

@@ -112,9 +112,10 @@ export const StyleEditor = ({ style, onChange, onGenerateLogo, isGeneratingLogo 
                   Remover
                 </Button>
               </div>
-              <div 
-                className="w-20 h-20 mx-auto"
-                dangerouslySetInnerHTML={{ __html: style.logo }}
+              <img 
+                src={style.logo}
+                alt="Logo gerado"
+                className="w-20 h-20 mx-auto object-contain"
               />
             </div>
           )}
