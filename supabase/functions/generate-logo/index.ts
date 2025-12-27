@@ -22,19 +22,17 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const systemPrompt = `You are an expert SVG logo designer specializing in medical and healthcare logos. 
-    Generate clean, professional SVG code for medical logos.
+    const imagePrompt = `Create a professional medical logo icon with transparent background. 
+    The logo should be: ${prompt}
     
-    CRITICAL RULES:
-    1. Return ONLY valid SVG code, nothing else
-    2. Use viewBox="0 0 100 100"
-    3. Use the provided primary color: ${primaryColor}
-    4. Keep the design simple, elegant and professional
-    5. Suitable for medical/healthcare context
-    6. Do not include any text, just the symbol/icon
-    7. Use clean lines and minimalist style
-    8. Do not wrap in markdown code blocks
-    9. Start directly with <svg and end with </svg>`;
+    Style guidelines:
+    - Clean, minimalist medical/healthcare design
+    - Use ${primaryColor} as the main color
+    - Transparent background (PNG style)
+    - Professional and elegant
+    - Simple icon/symbol, no text
+    - Suitable for a medical prescription header
+    - High contrast and clear silhouette`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -43,12 +41,11 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-flash-image-preview',
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Create an SVG logo based on this description: ${prompt}. Use ${primaryColor} as the main color.` }
+          { role: 'user', content: imagePrompt }
         ],
-        temperature: 0.7,
+        modalities: ['image', 'text'],
       }),
     });
 
@@ -75,34 +72,17 @@ serve(async (req) => {
     const data = await response.json();
     console.log('AI response received');
     
-    let svgContent = data.choices?.[0]?.message?.content || '';
+    // Extract the image URL from the response
+    const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
     
-    // Clean up the response - extract only the SVG
-    svgContent = svgContent.trim();
-    
-    // Remove markdown code blocks if present
-    if (svgContent.includes('```')) {
-      const svgMatch = svgContent.match(/```(?:svg|xml)?\s*([\s\S]*?)```/);
-      if (svgMatch) {
-        svgContent = svgMatch[1].trim();
-      }
+    if (!imageUrl) {
+      console.error('No image in response:', JSON.stringify(data));
+      throw new Error('No image generated');
     }
     
-    // Ensure it starts with <svg
-    const svgStartIndex = svgContent.indexOf('<svg');
-    if (svgStartIndex !== -1) {
-      svgContent = svgContent.substring(svgStartIndex);
-    }
-    
-    // Ensure it ends with </svg>
-    const svgEndIndex = svgContent.lastIndexOf('</svg>');
-    if (svgEndIndex !== -1) {
-      svgContent = svgContent.substring(0, svgEndIndex + 6);
-    }
-    
-    console.log('Generated SVG logo successfully');
+    console.log('Generated PNG logo successfully');
 
-    return new Response(JSON.stringify({ svg: svgContent }), {
+    return new Response(JSON.stringify({ imageUrl }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
