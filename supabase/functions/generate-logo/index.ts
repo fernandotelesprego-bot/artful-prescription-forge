@@ -22,17 +22,19 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const imagePrompt = `Create a professional medical logo icon with transparent background. 
-    The logo should be: ${prompt}
+    const imagePrompt = `Create a large, high-resolution professional medical logo icon.
     
-    Style guidelines:
+    CRITICAL REQUIREMENTS:
+    - The logo must be: ${prompt}
+    - Use ONLY the color ${primaryColor} (monochromatic design)
+    - PURE WHITE BACKGROUND (#FFFFFF) - NOT transparent, NOT checkered, just solid white
+    - Large, detailed, high quality image (at least 512x512 pixels)
     - Clean, minimalist medical/healthcare design
-    - Use ${primaryColor} as the main color
-    - Transparent background (PNG style)
-    - Professional and elegant
-    - Simple icon/symbol, no text
-    - Suitable for a medical prescription header
-    - High contrast and clear silhouette`;
+    - Professional and elegant silhouette style
+    - Simple icon/symbol only, absolutely NO text
+    - The logo should work well as a watermark
+    - Vector-like clean edges
+    - Centered composition with good margins`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

@@ -67,11 +67,14 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
     };
 
     const logoSize = style.logoSize || 60;
+    const logoOpacity = style.logoOpacity ?? 15;
+    const logoPosition = style.logoPosition || 'header';
+    const watermarkSize = style.logoPosition === 'watermark' ? (style.logoSize || 150) : 150;
 
     return (
       <div
         ref={ref}
-        className={`print-simple prescription-paper ${getTextureClass()} ${getFontClass()}`}
+        className={`print-simple prescription-paper ${getTextureClass()} ${getFontClass()} relative`}
         style={{ 
           backgroundColor: style.backgroundColor,
           width: '210mm',
@@ -80,15 +83,36 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
           display: 'flex',
           flexDirection: 'column',
           padding: '15mm',
+          position: 'relative',
           ...getBorderStyle(),
         }}
       >
+        {/* Watermark Logo */}
+        {style.logo && logoPosition === 'watermark' && (
+          <div 
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            style={{ zIndex: 0 }}
+          >
+            <img 
+              src={style.logo}
+              alt="Logo watermark"
+              className="object-contain"
+              style={{ 
+                width: watermarkSize, 
+                height: watermarkSize,
+                opacity: logoOpacity / 100,
+                mixBlendMode: 'multiply',
+              }}
+            />
+          </div>
+        )}
+
         {/* Header */}
         <div 
-          className={`mb-6 pb-4 flex flex-col ${getHeaderFlexAlign()}`}
-          style={{ borderBottom: `2px solid ${style.primaryColor}` }}
+          className={`mb-6 pb-4 flex flex-col ${getHeaderFlexAlign()} relative`}
+          style={{ borderBottom: `2px solid ${style.primaryColor}`, zIndex: 1 }}
         >
-          {style.logo && (
+          {style.logo && logoPosition === 'header' && (
             <img 
               src={style.logo}
               alt="Logo"
@@ -113,7 +137,7 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
         </div>
 
         {/* Patient */}
-        <div className="mb-4 text-sm">
+        <div className="mb-4 text-sm relative" style={{ zIndex: 1 }}>
           <p className="mb-1">
             <span className="font-semibold">Paciente:</span>{' '}
             <span className="border-b border-foreground/30 inline-block min-w-[200px]">
@@ -131,7 +155,7 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
         </div>
 
         {/* Prescription */}
-        <div className="flex-1">
+        <div className="flex-1 relative" style={{ zIndex: 1 }}>
           <h2 className="text-base font-bold mb-3 text-center" style={{ color: style.primaryColor }}>
             RECEITUÁRIO
           </h2>
@@ -141,7 +165,7 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
         </div>
 
         {/* Footer */}
-        <div className="mt-auto pt-8">
+        <div className="mt-auto pt-8 relative" style={{ zIndex: 1 }}>
           <div className="text-right text-sm">
             <p className="mb-1">{doctor.city}, {formatDate(prescription.date)}</p>
             <div className="inline-block text-center mt-10">

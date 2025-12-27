@@ -43,6 +43,8 @@ export interface PrescriptionStyle {
   borderStyle: 'none' | 'simple' | 'double' | 'elegant' | 'rounded' | 'thick';
   logo?: string;
   logoSize?: number;
+  logoOpacity?: number;
+  logoPosition?: 'header' | 'watermark';
   headerPosition?: 'left' | 'center' | 'right';
 }
 

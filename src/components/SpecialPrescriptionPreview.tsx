@@ -45,17 +45,40 @@ const SinglePrescription = ({
   };
 
   const logoSize = (style.logoSize || 60) * 0.5;
+  const logoOpacity = style.logoOpacity ?? 15;
+  const logoPosition = style.logoPosition || 'header';
+  const watermarkSize = style.logoPosition === 'watermark' ? ((style.logoSize || 150) * 0.5) : 80;
 
   return (
     <div
-      className={`w-full h-full ${getTextureClass()} ${getFontClass()} flex flex-col`}
+      className={`w-full h-full ${getTextureClass()} ${getFontClass()} flex flex-col relative`}
       style={{ 
         backgroundColor: style.backgroundColor,
         padding: '6mm',
         fontSize: '8pt',
         boxSizing: 'border-box',
+        position: 'relative',
       }}
     >
+      {/* Watermark Logo */}
+      {style.logo && logoPosition === 'watermark' && (
+        <div 
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          style={{ zIndex: 0 }}
+        >
+          <img 
+            src={style.logo}
+            alt="Logo watermark"
+            className="object-contain"
+            style={{ 
+              width: watermarkSize, 
+              height: watermarkSize,
+              opacity: logoOpacity / 100,
+              mixBlendMode: 'multiply',
+            }}
+          />
+        </div>
+      )}
       {/* Header */}
       <div 
         className="text-center font-bold text-xs py-1 mb-2"
@@ -71,11 +94,11 @@ const SinglePrescription = ({
 
       {/* Doctor Section */}
       <div className="border border-foreground/40 p-2 mb-2 flex-shrink-0">
-        <div className="font-bold text-xs mb-1" style={{ color: style.primaryColor }}>
+        <div className="font-bold text-xs mb-1 relative" style={{ color: style.primaryColor, zIndex: 1 }}>
           IDENTIFICAÇÃO DO EMITENTE
         </div>
-        <div className="flex items-start gap-2">
-          {style.logo && (
+        <div className="flex items-start gap-2 relative" style={{ zIndex: 1 }}>
+          {style.logo && logoPosition === 'header' && (
             <img
               src={style.logo}
               alt="Logo"

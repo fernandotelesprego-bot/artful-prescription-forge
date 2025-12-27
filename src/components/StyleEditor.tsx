@@ -189,23 +189,70 @@ export const StyleEditor = ({ style, onChange, onGenerateLogo, isGeneratingLogo 
         </div>
       </div>
 
-      {/* Logo Size */}
+      {/* Logo Settings */}
       {style.logo && (
-        <div>
-          <Label className="text-muted-foreground text-sm mb-2 block">Tamanho do Logo</Label>
-          <Slider
-            value={[style.logoSize || 60]}
-            onValueChange={([value]) => onChange({ ...style, logoSize: value })}
-            min={30}
-            max={100}
-            step={5}
-            className="w-full"
-          />
-          <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>Pequeno</span>
-            <span>{style.logoSize || 60}px</span>
-            <span>Grande</span>
+        <div className="space-y-4">
+          <div>
+            <Label className="text-muted-foreground text-sm mb-2 block">Posição do Logo</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => onChange({ ...style, logoPosition: 'header' })}
+                className={`p-3 rounded-lg border-2 transition-all duration-200 text-sm font-medium
+                  ${(style.logoPosition || 'header') === 'header' 
+                    ? 'border-primary bg-primary/5 text-primary' 
+                    : 'border-border hover:border-primary/50 text-muted-foreground'
+                  }`}
+              >
+                Cabeçalho
+              </button>
+              <button
+                onClick={() => onChange({ ...style, logoPosition: 'watermark' })}
+                className={`p-3 rounded-lg border-2 transition-all duration-200 text-sm font-medium
+                  ${style.logoPosition === 'watermark' 
+                    ? 'border-primary bg-primary/5 text-primary' 
+                    : 'border-border hover:border-primary/50 text-muted-foreground'
+                  }`}
+              >
+                Marca d'água
+              </button>
+            </div>
           </div>
+
+          <div>
+            <Label className="text-muted-foreground text-sm mb-2 block">Tamanho do Logo</Label>
+            <Slider
+              value={[style.logoSize || 60]}
+              onValueChange={([value]) => onChange({ ...style, logoSize: value })}
+              min={style.logoPosition === 'watermark' ? 100 : 30}
+              max={style.logoPosition === 'watermark' ? 300 : 100}
+              step={10}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <span>Pequeno</span>
+              <span>{style.logoSize || 60}px</span>
+              <span>Grande</span>
+            </div>
+          </div>
+
+          {style.logoPosition === 'watermark' && (
+            <div>
+              <Label className="text-muted-foreground text-sm mb-2 block">Opacidade do Logo</Label>
+              <Slider
+                value={[style.logoOpacity ?? 15]}
+                onValueChange={([value]) => onChange({ ...style, logoOpacity: value })}
+                min={5}
+                max={50}
+                step={5}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>Sutil</span>
+                <span>{style.logoOpacity ?? 15}%</span>
+                <span>Visível</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
