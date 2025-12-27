@@ -14,6 +14,8 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
         case 'prescription': return 'font-prescription';
         case 'classic': return 'font-classic';
         case 'display': return 'font-display';
+        case 'modern': return 'font-modern';
+        case 'elegant': return 'font-elegant';
         default: return 'font-body';
       }
     };
@@ -23,15 +25,38 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
         case 'linen': return 'texture-linen';
         case 'paper': return 'texture-paper';
         case 'grid': return 'texture-grid';
+        case 'dots': return 'texture-dots';
+        case 'lines': return 'texture-lines';
+        case 'crosshatch': return 'texture-crosshatch';
         default: return '';
       }
     };
 
-    const getBorderStyle = () => {
+    const getBorderStyle = (): React.CSSProperties => {
+      const color = style.primaryColor;
       switch (style.borderStyle) {
-        case 'double': return 'border-4 border-double';
-        case 'elegant': return 'border-2 shadow-lg';
-        default: return 'border';
+        case 'none': return {};
+        case 'double': return { border: `4px double ${color}` };
+        case 'elegant': return { border: `2px solid ${color}`, boxShadow: `inset 0 0 0 4px ${style.backgroundColor}, inset 0 0 0 5px ${color}` };
+        case 'rounded': return { border: `2px solid ${color}`, borderRadius: '12px' };
+        case 'thick': return { border: `4px solid ${color}` };
+        default: return { border: `1px solid ${color}` };
+      }
+    };
+
+    const getHeaderAlign = () => {
+      switch (style.headerPosition) {
+        case 'left': return 'text-left';
+        case 'right': return 'text-right';
+        default: return 'text-center';
+      }
+    };
+
+    const getHeaderFlexAlign = () => {
+      switch (style.headerPosition) {
+        case 'left': return 'items-start';
+        case 'right': return 'items-end';
+        default: return 'items-center';
       }
     };
 
@@ -41,50 +66,63 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
       return date.toLocaleDateString('pt-BR');
     };
 
+    const logoSize = style.logoSize || 60;
+
     return (
       <div
         ref={ref}
-        className={`w-[210mm] min-h-[297mm] mx-auto prescription-paper ${getTextureClass()} ${getBorderStyle()} ${getFontClass()}`}
+        className={`print-simple prescription-paper ${getTextureClass()} ${getFontClass()}`}
         style={{ 
           backgroundColor: style.backgroundColor,
-          borderColor: style.primaryColor,
-          padding: '20mm',
+          width: '210mm',
+          height: '297mm',
+          padding: '15mm',
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column',
+          ...getBorderStyle(),
         }}
       >
         {/* Header */}
-        <div className="text-center mb-8 pb-6" style={{ borderBottom: `2px solid ${style.primaryColor}` }}>
+        <div 
+          className={`mb-6 pb-4 flex flex-col ${getHeaderFlexAlign()}`}
+          style={{ borderBottom: `2px solid ${style.primaryColor}` }}
+        >
           {style.logo && (
             <div 
-              className="w-20 h-20 mx-auto mb-4"
+              className="mb-3"
+              style={{ width: logoSize, height: logoSize }}
               dangerouslySetInnerHTML={{ __html: style.logo }}
             />
           )}
-          <h1 className="text-2xl font-bold mb-1" style={{ color: style.primaryColor }}>
-            {doctor.name || 'Nome do Médico'}
-          </h1>
-          {doctor.specialty && (
-            <p className="text-sm text-muted-foreground mb-2">{doctor.specialty}</p>
-          )}
-          <div className="text-sm text-muted-foreground">
-            <p>CRM: {doctor.crm || '______'}/{doctor.uf || '__'}</p>
-            {doctor.address && <p>{doctor.address}</p>}
-            {doctor.city && <p>{doctor.city} - {doctor.state}</p>}
-            {doctor.phone && <p>Tel: {doctor.phone}</p>}
+          <div className={getHeaderAlign()}>
+            <h1 className="text-xl font-bold mb-1" style={{ color: style.primaryColor }}>
+              {doctor.name || 'Nome do Médico'}
+            </h1>
+            {doctor.specialty && (
+              <p className="text-sm text-muted-foreground mb-1">{doctor.specialty}</p>
+            )}
+            <div className="text-xs text-muted-foreground space-y-0.5">
+              <p>CRM: {doctor.crm || '______'}/{doctor.uf || '__'}</p>
+              {doctor.address && <p>{doctor.address}</p>}
+              {doctor.city && <p>{doctor.city} - {doctor.state}</p>}
+              {doctor.phone && <p>Tel: {doctor.phone}</p>}
+            </div>
           </div>
         </div>
 
         {/* Patient */}
-        <div className="mb-6">
-          <p className="mb-2">
+        <div className="mb-4 text-sm">
+          <p className="mb-1">
             <span className="font-semibold">Paciente:</span>{' '}
-            <span className="border-b border-foreground/30 inline-block min-w-[300px]">
+            <span className="border-b border-foreground/30 inline-block min-w-[200px]">
               {prescription.patient.name || ''}
             </span>
           </p>
           {prescription.patient.address && (
             <p>
               <span className="font-semibold">Endereço:</span>{' '}
-              <span className="border-b border-foreground/30 inline-block min-w-[300px]">
+              <span className="border-b border-foreground/30 inline-block min-w-[200px]">
                 {prescription.patient.address}
               </span>
             </p>
@@ -92,23 +130,23 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
         </div>
 
         {/* Prescription */}
-        <div className="flex-1 min-h-[400px]">
-          <h2 className="text-lg font-bold mb-4 text-center" style={{ color: style.primaryColor }}>
+        <div className="flex-1">
+          <h2 className="text-base font-bold mb-3 text-center" style={{ color: style.primaryColor }}>
             RECEITUÁRIO
           </h2>
-          <div className="whitespace-pre-wrap leading-relaxed text-base">
+          <div className="whitespace-pre-wrap leading-relaxed text-sm">
             {prescription.prescription || 'Prescrição médica...'}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-auto pt-16">
-          <div className="text-right">
-            <p className="mb-2">{doctor.city}, {formatDate(prescription.date)}</p>
-            <div className="inline-block text-center">
-              <div className="w-64 border-t border-foreground/50 pt-2 mt-16">
-                <p className="font-semibold">{doctor.name}</p>
-                <p className="text-sm text-muted-foreground">CRM: {doctor.crm}/{doctor.uf}</p>
+        <div className="mt-auto pt-8">
+          <div className="text-right text-sm">
+            <p className="mb-1">{doctor.city}, {formatDate(prescription.date)}</p>
+            <div className="inline-block text-center mt-10">
+              <div className="w-48 border-t border-foreground/50 pt-1">
+                <p className="font-semibold text-sm">{doctor.name}</p>
+                <p className="text-xs text-muted-foreground">CRM: {doctor.crm}/{doctor.uf}</p>
               </div>
             </div>
           </div>

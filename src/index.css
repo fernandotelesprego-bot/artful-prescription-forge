@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&family=Crimson+Pro:wght@400;500;600&family=Libre+Baskerville:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&family=Crimson+Pro:wght@400;500;600&family=Libre+Baskerville:wght@400;700&family=Roboto:wght@300;400;500&family=Montserrat:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -49,6 +49,8 @@
     --font-body: 'Source Sans 3', sans-serif;
     --font-prescription: 'Crimson Pro', serif;
     --font-classic: 'Libre Baskerville', serif;
+    --font-modern: 'Roboto', sans-serif;
+    --font-elegant: 'Montserrat', sans-serif;
 
     /* Shadows */
     --shadow-soft: 0 4px 20px -4px hsl(210 30% 20% / 0.1);
@@ -128,7 +130,6 @@
 @layer components {
   .prescription-paper {
     background: hsl(var(--prescription-bg));
-    box-shadow: var(--shadow-card);
     position: relative;
   }
 
@@ -155,6 +156,28 @@
       linear-gradient(to right, hsl(var(--border) / 0.3) 1px, transparent 1px),
       linear-gradient(to bottom, hsl(var(--border) / 0.3) 1px, transparent 1px);
     background-size: 20px 20px;
+  }
+
+  .texture-dots {
+    background-image: radial-gradient(circle, hsl(var(--border) / 0.4) 1px, transparent 1px);
+    background-size: 10px 10px;
+  }
+
+  .texture-lines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 19px,
+      hsl(var(--border) / 0.2) 19px,
+      hsl(var(--border) / 0.2) 20px
+    );
+  }
+
+  .texture-crosshatch {
+    background-image: 
+      linear-gradient(45deg, hsl(var(--border) / 0.1) 25%, transparent 25%),
+      linear-gradient(-45deg, hsl(var(--border) / 0.1) 25%, transparent 25%);
+    background-size: 8px 8px;
   }
 
   .gradient-medical {
@@ -196,12 +219,41 @@
   .font-classic {
     font-family: var(--font-classic);
   }
+
+  .font-modern {
+    font-family: var(--font-modern);
+  }
+
+  .font-elegant {
+    font-family: var(--font-elegant);
+  }
 }
 
-/* Print styles */
+/* Print styles - optimized for borderless A4 printing */
 @media print {
-  body {
+  @page {
+    size: A4;
+    margin: 0 !important;
+  }
+
+  @page landscape {
+    size: A4 landscape;
+    margin: 0 !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
     background: white !important;
+    overflow: visible !important;
   }
 
   .no-print {
@@ -212,8 +264,40 @@
     display: block !important;
   }
 
+  /* Simple prescription - A4 Portrait */
+  .print-simple {
+    width: 210mm !important;
+    height: 297mm !important;
+    max-width: 210mm !important;
+    max-height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    overflow: hidden !important;
+  }
+
+  /* Special prescription - A4 Landscape */
+  .print-special {
+    width: 297mm !important;
+    height: 210mm !important;
+    max-width: 297mm !important;
+    max-height: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    overflow: hidden !important;
+  }
+
   .prescription-paper {
     box-shadow: none !important;
-    border: 1px solid #000 !important;
+  }
+}
+
+/* Screen preview styles */
+@media screen {
+  .print-preview-container {
+    transform-origin: top left;
   }
 }

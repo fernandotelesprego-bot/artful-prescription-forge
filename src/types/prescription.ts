@@ -37,11 +37,13 @@ export interface SpecialPrescriptionData extends PrescriptionData {
 
 export interface PrescriptionStyle {
   backgroundColor: string;
-  texture: 'none' | 'linen' | 'paper' | 'grid';
-  fontFamily: 'prescription' | 'classic' | 'body' | 'display';
+  texture: 'none' | 'linen' | 'paper' | 'grid' | 'dots' | 'lines' | 'crosshatch';
+  fontFamily: 'prescription' | 'classic' | 'body' | 'display' | 'modern' | 'elegant';
   primaryColor: string;
-  borderStyle: 'simple' | 'double' | 'elegant';
+  borderStyle: 'none' | 'simple' | 'double' | 'elegant' | 'rounded' | 'thick';
   logo?: string;
+  logoSize?: number;
+  headerPosition?: 'left' | 'center' | 'right';
 }
 
 export type PrescriptionType = 'simple' | 'special';
