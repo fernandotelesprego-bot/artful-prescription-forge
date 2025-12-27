@@ -1,0 +1,47 @@
+export interface DoctorInfo {
+  name: string;
+  crm: string;
+  uf: string;
+  specialty: string;
+  address: string;
+  city: string;
+  state: string;
+  phone: string;
+  email: string;
+}
+
+export interface PatientInfo {
+  name: string;
+  address: string;
+}
+
+export interface PrescriptionData {
+  patient: PatientInfo;
+  prescription: string;
+  date: string;
+}
+
+export interface BuyerInfo {
+  name: string;
+  rg: string;
+  orgaoEmissor: string;
+  address: string;
+  city: string;
+  uf: string;
+  phone: string;
+}
+
+export interface SpecialPrescriptionData extends PrescriptionData {
+  buyer: BuyerInfo;
+}
+
+export interface PrescriptionStyle {
+  backgroundColor: string;
+  texture: 'none' | 'linen' | 'paper' | 'grid';
+  fontFamily: 'prescription' | 'classic' | 'body' | 'display';
+  primaryColor: string;
+  borderStyle: 'simple' | 'double' | 'elegant';
+  logo?: string;
+}
+
+export type PrescriptionType = 'simple' | 'special';
