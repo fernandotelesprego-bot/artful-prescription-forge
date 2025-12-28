@@ -101,7 +101,6 @@ export const SimplePrescriptionPreview = forwardRef<HTMLDivElement, SimplePrescr
                 width: watermarkSize, 
                 height: watermarkSize,
                 opacity: logoOpacity / 100,
-                mixBlendMode: 'multiply',
               }}
             />
           </div>
