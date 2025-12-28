@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { FileText, Printer, Settings, User, Pill, Eye, AlertTriangle, ZoomIn, ZoomOut } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { removeWhiteBackground } from '@/lib/imageUtils';
 
 const defaultDoctor: DoctorInfo = {
   name: '',
@@ -108,7 +109,9 @@ export const PrescriptionGenerator = () => {
       }
 
       if (data?.imageUrl) {
-        setStyle(prev => ({ ...prev, logo: data.imageUrl }));
+        // Remove white background from the generated logo
+        const transparentLogo = await removeWhiteBackground(data.imageUrl);
+        setStyle(prev => ({ ...prev, logo: transparentLogo }));
         toast.success('Logo gerado com sucesso!');
       } else if (data?.error) {
         toast.error(data.error);

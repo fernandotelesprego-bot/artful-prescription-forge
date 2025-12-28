@@ -74,7 +74,6 @@ const SinglePrescription = ({
               width: watermarkSize, 
               height: watermarkSize,
               opacity: logoOpacity / 100,
-              mixBlendMode: 'multiply',
             }}
           />
         </div>
