@@ -1,16 +1,19 @@
 import { PrescriptionStyle } from '@/types/prescription';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Palette, Type, Sparkles, Loader2, Brush, Square } from 'lucide-react';
-import { useState } from 'react';
+import { Palette, Type, Brush, Square } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { LogoManager } from './LogoManager';
+import { LogoHistoryItem } from '@/hooks/useLocalStorage';
 
 interface StyleEditorProps {
   style: PrescriptionStyle;
   onChange: (style: PrescriptionStyle) => void;
   onGenerateLogo: (prompt: string) => Promise<void>;
   isGeneratingLogo: boolean;
+  logoHistory: LogoHistoryItem[];
+  onAddToLogoHistory: (item: LogoHistoryItem) => void;
+  onRemoveFromLogoHistory: (id: string) => void;
 }
 
 const textures = [
@@ -52,75 +55,28 @@ const presetColors = [
   { bg: '#fff7ed', primary: '#c2410c', label: 'Terracota' },
 ];
 
-export const StyleEditor = ({ style, onChange, onGenerateLogo, isGeneratingLogo }: StyleEditorProps) => {
-  const [logoPrompt, setLogoPrompt] = useState('');
-
-  const handleGenerateLogo = async () => {
-    if (!logoPrompt.trim()) return;
-    await onGenerateLogo(logoPrompt);
-  };
+export const StyleEditor = ({ 
+  style, 
+  onChange, 
+  onGenerateLogo, 
+  isGeneratingLogo,
+  logoHistory,
+  onAddToLogoHistory,
+  onRemoveFromLogoHistory,
+}: StyleEditorProps) => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Logo Generator */}
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <div className="p-2 rounded-lg bg-medical-gold/20">
-            <Sparkles className="w-5 h-5 text-medical-gold" />
-          </div>
-          <h3 className="font-display text-lg font-semibold text-foreground">Logo com IA</h3>
-        </div>
-
-        <div className="space-y-3">
-          <div>
-            <Label className="text-muted-foreground text-sm">Descreva o logo desejado</Label>
-            <Input
-              value={logoPrompt}
-              onChange={(e) => setLogoPrompt(e.target.value)}
-              placeholder="Ex: Caduceu minimalista com coração"
-              className="input-medical mt-1"
-            />
-          </div>
-          <Button 
-            onClick={handleGenerateLogo}
-            disabled={isGeneratingLogo || !logoPrompt.trim()}
-            className="btn-medical w-full"
-          >
-            {isGeneratingLogo ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Gerando com IA...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Gerar Logo com IA
-              </>
-            )}
-          </Button>
-
-          {style.logo && (
-            <div className="mt-3 p-4 bg-card rounded-lg border border-border">
-              <div className="flex justify-between items-center mb-2">
-                <p className="text-sm text-muted-foreground">Logo atual:</p>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => onChange({ ...style, logo: undefined })}
-                  className="text-xs text-destructive hover:text-destructive"
-                >
-                  Remover
-                </Button>
-              </div>
-              <img 
-                src={style.logo}
-                alt="Logo gerado"
-                className="w-20 h-20 mx-auto object-contain"
-              />
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Logo Manager */}
+      <LogoManager
+        currentLogo={style.logo}
+        logoHistory={logoHistory}
+        onLogoChange={(logo) => onChange({ ...style, logo })}
+        onAddToHistory={onAddToLogoHistory}
+        onRemoveFromHistory={onRemoveFromLogoHistory}
+        onGenerateLogo={onGenerateLogo}
+        isGeneratingLogo={isGeneratingLogo}
+      />
 
       {/* Preset Colors */}
       <div>
