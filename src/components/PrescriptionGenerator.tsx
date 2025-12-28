@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { DoctorInfo, PrescriptionData, PrescriptionStyle, PrescriptionType, BuyerInfo } from '@/types/prescription';
 import { DoctorForm } from './DoctorForm';
 import { PrescriptionForm } from './PrescriptionForm';
@@ -11,6 +11,7 @@ import { FileText, Printer, Settings, User, Pill, Eye, AlertTriangle, ZoomIn, Zo
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { removeWhiteBackground } from '@/lib/imageUtils';
+import { useLocalStorage, STORAGE_KEYS, LogoHistoryItem } from '@/hooks/useLocalStorage';
 
 const defaultDoctor: DoctorInfo = {
   name: '',
@@ -52,18 +53,34 @@ const defaultStyle: PrescriptionStyle = {
 
 export const PrescriptionGenerator = () => {
   const [prescriptionType, setPrescriptionType] = useState<PrescriptionType>('simple');
-  const [doctor, setDoctor] = useState<DoctorInfo>(defaultDoctor);
+  
+  // LocalStorage persistence
+  const [savedDoctor, setSavedDoctor] = useLocalStorage<DoctorInfo>(STORAGE_KEYS.DOCTOR_INFO, defaultDoctor);
+  const [savedStyle, setSavedStyle] = useLocalStorage<PrescriptionStyle>(STORAGE_KEYS.STYLE, defaultStyle);
+  const [logoHistory, setLogoHistory] = useLocalStorage<LogoHistoryItem[]>(STORAGE_KEYS.LOGO_HISTORY, []);
+  
+  // Local state (initialized from localStorage)
+  const [doctor, setDoctor] = useState<DoctorInfo>(savedDoctor);
   const [prescription, setPrescription] = useState<PrescriptionData>(defaultPrescription);
   const [buyer, setBuyer] = useState<BuyerInfo>(defaultBuyer);
-  const [style, setStyle] = useState<PrescriptionStyle>(defaultStyle);
+  const [style, setStyle] = useState<PrescriptionStyle>(savedStyle);
   const [activeTab, setActiveTab] = useState('doctor');
   const [isGeneratingLogo, setIsGeneratingLogo] = useState(false);
   const [previewScale, setPreviewScale] = useState(0.5);
   
   const printRef = useRef<HTMLDivElement>(null);
 
+  // Sync doctor changes to localStorage
+  useEffect(() => {
+    setSavedDoctor(doctor);
+  }, [doctor, setSavedDoctor]);
+
+  // Sync style changes to localStorage
+  useEffect(() => {
+    setSavedStyle(style);
+  }, [style, setSavedStyle]);
+
   const handlePrint = () => {
-    // Create a print-specific stylesheet with @page rules
     const printStyle = document.createElement('style');
     printStyle.id = 'print-override';
     printStyle.textContent = prescriptionType === 'special' 
@@ -83,10 +100,8 @@ export const PrescriptionGenerator = () => {
       `;
     
     document.head.appendChild(printStyle);
-    
     window.print();
     
-    // Remove the style after printing
     setTimeout(() => {
       const styleEl = document.getElementById('print-override');
       if (styleEl) styleEl.remove();
@@ -109,8 +124,18 @@ export const PrescriptionGenerator = () => {
       }
 
       if (data?.imageUrl) {
-        // Remove white background from the generated logo
         const transparentLogo = await removeWhiteBackground(data.imageUrl);
+        
+        // Add to history
+        const historyItem: LogoHistoryItem = {
+          id: crypto.randomUUID(),
+          url: transparentLogo,
+          prompt,
+          createdAt: new Date().toISOString(),
+          isUploaded: false,
+        };
+        setLogoHistory(prev => [historyItem, ...prev.slice(0, 19)]); // Keep last 20
+        
         setStyle(prev => ({ ...prev, logo: transparentLogo }));
         toast.success('Logo gerado com sucesso!');
       } else if (data?.error) {
@@ -122,6 +147,14 @@ export const PrescriptionGenerator = () => {
     } finally {
       setIsGeneratingLogo(false);
     }
+  };
+
+  const handleAddToLogoHistory = (item: LogoHistoryItem) => {
+    setLogoHistory(prev => [item, ...prev.slice(0, 19)]); // Keep last 20
+  };
+
+  const handleRemoveFromLogoHistory = (id: string) => {
+    setLogoHistory(prev => prev.filter(item => item.id !== id));
   };
 
   return (
@@ -141,7 +174,6 @@ export const PrescriptionGenerator = () => {
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              {/* Prescription Type Toggle */}
               <div className="flex bg-muted rounded-lg p-1">
                 <button
                   onClick={() => setPrescriptionType('simple')}
@@ -218,6 +250,9 @@ export const PrescriptionGenerator = () => {
                       onChange={setStyle} 
                       onGenerateLogo={generateSvgLogo}
                       isGeneratingLogo={isGeneratingLogo}
+                      logoHistory={logoHistory}
+                      onAddToLogoHistory={handleAddToLogoHistory}
+                      onRemoveFromLogoHistory={handleRemoveFromLogoHistory}
                     />
                   </TabsContent>
                 </div>
@@ -292,7 +327,7 @@ export const PrescriptionGenerator = () => {
         </div>
       </main>
 
-      {/* Print-only content - rendered outside main flow */}
+      {/* Print-only content */}
       <div className="print-container">
         {prescriptionType === 'simple' ? (
           <SimplePrescriptionPreview
